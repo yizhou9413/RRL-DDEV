@@ -1,0 +1,46 @@
+python run.py test singlelane --checkpoint runs/a2c_continuous_singlelane_default_0108_213633/nn/singlelane.pth --car-preset tesla_model_3 --mlp-size-last 64
+python run.py test moose --exp-name rarl_moose_default_1129_1450 --car-preset tesla_model_3 --device cuda:0
+python run.py test singlelane --exp-name default_1106_1430 --epoch-index 50
+python run.py test moose --exp-name default_1124_2056 --car-preset tesla_model_3 --device cuda:2 --epoch-index 200
+
+python run5.py  train  fixed_circle_iwd --car-preset tesla_model_3 --device cuda:0 --disturbed
+runs/a2c_continuous_singlelane_default_0108_205545/nn/singlelane.pth
+tensorboard --logdir=/home/zhouyi/lane-change/runs --port=6012
+tensorboard --logdir=/home/zhouyi/lane-change/runs0115000 --port=6013
+python run.py train singlelane \
+  --checkpoint runs/singlelane_default_1105_1345/nn/singlelane.pth \
+  --exp-name continue_1105_1345
+--randomize-tyre small   --disturbed
+
+python run_rarl.py train fixed_circle_iwd --car-preset tesla_model_3 --device cuda:0
+python run_rarl.py test moose --disturbed --checkpoint runs/rarl_moose_default_1129_1450/nn/moose.pth
+
+fixed_circle_iwd
+continuous_drift_iwd
+
+runs/rarl_moose_default_1221_205752/nn/moose_pro_for_runpy.pth
+runs/rarl_moose_default_1221_205817/nn/moose_pro_for_runpy.pth
+runs/a2c_continuous_moose_default_1221_1618/nn/moose.pth
+runs/a2c_continuous_moose_default_1214_1727/nn/moose.pth
+runs/a2c_continuous_moose_default_1222_111833/nn/moose.pth
+
+runs/a2c_continuous_moose_default_1223_130605/nn/moose.pth
+runs/rarl_moose_default_1223_183019/nn/moose_pro_for_runpy.pth
+runs/rarl_moose_default_1223_183117/nn/moose_pro_for_runpy.pth
+
+python run5.py test continuous_drift_iwd \
+  --checkpoint \
+    /home/zhouyi/lane-change/runs/a2c_continuous_continuous_drift_iwd_default_0201_105138/nn/continuous_drift_iwd.pth\
+  --car-preset tesla_model_3 \
+  --mlp-size-last 64 \
+  --device cuda:0
+
+ runs/rarl_moose_default_0105_173759/nn/moose_pro_for_runpy.pth   #干扰
+ runs/rarl_moose_default_0105_174035/nn/moose_pro_for_runpy.pth
+ runs/rarl_moose_default_0105_174206/nn/moose_pro_for_runpy.pth  #参数
+ runs/rarl_moose_default_0105_174206/nn/final_moose_pro_for_runpy.pth
+
+ runs/rarl_moose_default_0106_000151/nn/moose_pro_for_runpy.pth #cans
+ runs/rarl_moose_default_0106_000754/nn/moose_pro_for_runpy.pth
+
+ runs/rarl_moose_default_0107_151730/nn/moose_pro_for_runpy.pth干扰

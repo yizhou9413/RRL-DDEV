@@ -1,0 +1,173 @@
+﻿# ============================================================
+# RARL (Robust Adversarial Reinforcement Learning) 训练配置
+# ============================================================
+# 
+# RARL核心思想：
+# - 主策略(protagonist): 学习控制任务，最大化reward
+# - 对抗策略(adversary): 学习生成扰动，最小化主策略reward
+# - 两个策略交替训练，形成零和博弈
+#
+# ============================================================
+
+params:
+  seed: 0  # 与runner_config.yaml保持一致，确保公平对比
+
+  algo:
+    name: rarl_continuous  # RARL算法标识
+
+  model:
+    name: continuous_a2c_logstd
+
+  # ============ RARL 特有参数 ============
+  rarl:
+    n_pro_itr: 2          # 每轮主策略训练迭代数
+    n_adv_itr: 1          # 每轮对抗策略训练迭代数
+    adv_reward_scale: 1.0 # 对抗奖励缩放因子
+    
+    # 对抗策略动作空间（扰动空间，15维）
+    # [fx_1..4, fy_1..4, M_phi, M_theta, delta_m, delta_K21, delta_C21, delta_K23, delta_C23]
+    # 注意：禁用的维度用小范围如0.01，太小(1e-6)会导致log概率计算溢出
+    adv_action_space:
+      low: [-2500, -2500, -2500, -2500, -2500, -2500, -2500, -2500, -25000, -22000, -0., -0., -0., -0., -0.]
+      high: [ 2500,  2500,  2500,  2500,  2500,  2500,  2500,  2500,  25000,  22000, 0., 0., 0., 0., 0.]
+    # 对抗策略网络配置（默认与主策略相同）
+    adv_network:
+      separate: True
+      mlp:
+        units: [256, 128, 64]  # adversary网络可以小一些
+        activation: elu
+
+  # ============ 共享网络配置（protagonist和adversary共用） ============
+  # 网络配置（与runner_config.yaml保持一致，确保对比公平）
+  network:
+    name: actor_critic
+    separate: True
+
+    space:
+      continuous:
+        mu_activation: None
+        sigma_activation: None
+        mu_init:
+          name: default
+        sigma_init:
+          name: const_initializer
+          val: 0.
+        fixed_sigma: True
+
+    mlp:
+      units: [256, 128, 64]  # 与原始A2C保持一致
+      activation: elu
+      d2rl: False
+      initializer:
+        name: default
+      regularizer:
+        name: None
+
+    rnn:
+      units: 64
+      layers: 1
+      name: gru
+      before_mlp: True
+
+  load_checkpoint: False
+  load_path: "checkpoints"
+
+  # ============ 训练配置 ============
+  config:
+    name: rarl_default
+    full_experiment_name: rarl_default
+    env_name: rlgpu
+    ppo: True
+    mixed_precision: True
+    normalize_input: True
+    normalize_value: True
+    value_bootstrap: True
+
+    
+    reward_shaper:
+      scale_value: 1.0
+    
+    normalize_advantage: True
+    gamma: 0.99
+    tau: 0.95
+    e_clip: 0.2
+    entropy_coef: 0.0
+    learning_rate: 3.e-4
+    lr_schedule: linear
+    kl_threshold: 0.008
+    truncate_grads: True
+    grad_norm: 1.
+    horizon_length: 200
+
+    mini_epochs: 5
+    critic_coef: 2
+    clip_value: True
+    seq_len: 10
+    bounds_loss_coef: 0.001
+
+    # RARL特有配置
+    n_pro_itr: 1
+    n_adv_itr: 1
+    adv_reward_scale: 1.0
+    adv_output_freq: 2
+    rarl_mode: True  # 启用RARL模式
+    # RARL branch switch:
+    # - original: keep original RARL behavior (equivalent to k=1 for all envs)
+    # - sampled_adv_scale: sample per-env k_i once per episode and apply a_adv_scaled = k_i * a_adv
+    rarl_branch: original
+    sampled_adv_scale:
+      # k_i distribution mode: normal | uniform
+      distribution: uniform
+      # only used when distribution == normal, then clipped to [clip_min, clip_max]
+      normal_mean: 0.5
+      normal_std: 0.2
+      clip_min: 0.0
+      clip_max: 1.0
+    # Risk-adjusted Q for PPO-compatible actor advantage.
+    use_risk_q: True
+    q_ensemble_size: 3
+    risk_q_hidden_units: [256, 128]
+    risk_lambda_protagonist: 0.0
+    risk_lambda_adversary: 0.0
+    q_loss_coef: 0.5
+    q_bootstrap_p: 1.0
+    q_learning_rate: null
+    q_grad_clip: 1.0
+    # Use actor running_mean_std to normalize obs before feeding Q ensemble.
+    risk_q_obs_normalize: True
+    # Blend from PPO advantage -> risk-Q advantage to avoid cold-start collapse.
+    # ratio=0 before start_epoch, ratio=1 after end_epoch.
+    risk_q_adv_blend_start_epoch: 20
+    risk_q_adv_blend_end_epoch: 120
+    # Scale blend by |lambda|/risk_q_blend_lambda_ref, clipped to [0,1].
+    # Small lambda keeps actor close to PPO and avoids abrupt degradation.
+    risk_q_blend_lambda_ref: 0.01
+    # When role lambda is exactly 0, keep PPO advantage to preserve near-original behavior.
+    risk_q_force_ppo_when_zero_lambda: True
+    # Optional: split risk-adjusted Q advantage forward into chunks to reduce peak VRAM.
+    # null -> fallback to minibatch_size.
+    risk_q_advantage_chunk_size: null
+    # Legacy aliases (kept for backward compatibility with old scripts/checkpoints).
+    use_rararl_q: False
+    rararl_q_num_heads: 5
+    rararl_q_hidden_units: [256, 128]
+    rararl_q_lambda_protagonist: 0.1
+    rararl_q_lambda_adversary: 0.1
+    rararl_q_learning_rate: null
+    rararl_q_grad_clip: 1.0
+    rararl_q_obs_normalize: True
+    rararl_q_adv_blend_start_epoch: 20
+    rararl_q_adv_blend_end_epoch: 120
+    rararl_q_blend_lambda_ref: 0.01
+    rararl_q_force_ppo_when_zero_lambda: True
+    rararl_q_advantage_chunk_size: null
+    max_epochs: 2000  # RARL通常需要更多轮次
+    save_best_after: 50
+    save_best_after_late: 1500  # 训练后期的最佳模型，从2500轮后开始追踪
+    score_to_win: 20000
+    save_frequency: 50
+    print_stats: True
+
+    player:
+      render: True
+      games_num: 1
