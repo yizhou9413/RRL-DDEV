@@ -58,6 +58,8 @@ python run5.py test moose \
 
 ```
 ├── envs/                        # Task environments
+├── renders/                     # Visualization & rendering scripts
+├── plots/                       # Plotting scripts
 ├── experiments/                 # Training scripts & plots
 ├── rl_games/                    # RL algorithms (submodule)
 ├── utils/                       # Utilities

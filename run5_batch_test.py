@@ -35,9 +35,9 @@ RAW_ENV_CHECKPOINT_NAMES = tuple(f"{env_name}.pth" for env_name in SUPPORTED_ENV
 DEFAULT_CHECKPOINT_NAMES = RAW_ENV_CHECKPOINT_NAMES
 ALLOWED_CHECKPOINT_NAMES = frozenset(DEFAULT_CHECKPOINT_NAMES)
 ENV_TO_RENDER_SCRIPT_NAME = {
-    "moose": "render_moose.py",
-    "singlelane": "render_singlelane.py",
-    "fixed_circle_iwd": "render_fixed_circle_iwd.py",
+    "moose": "renders/render_moose.py",
+    "singlelane": "renders/render_singlelane.py",
+    "fixed_circle_iwd": "renders/render_fixed_circle_iwd.py",
 }
 ALGORITHM_TO_RUNNER_KEY = {
     "PPO": "run5",
@@ -284,7 +284,7 @@ def resolve_render_script(
         detected_env_name = infer_env_name_from_value(requested_env_name)
         detection_reason = "--env"
 
-    render_script_name = ENV_TO_RENDER_SCRIPT_NAME.get(detected_env_name, "render5.py")
+    render_script_name = ENV_TO_RENDER_SCRIPT_NAME.get(detected_env_name, "renders/render5.py")
     return (project_root / render_script_name).resolve(), detected_env_name, detection_reason
 
 
@@ -902,8 +902,8 @@ def main() -> int:
         type=str,
         default="auto",
         help=(
-            "Path to a render entry script. Use 'auto' to select render_moose.py, "
-            "render_singlelane.py, render_fixed_circle_iwd.py, or fall back to render5.py."
+            "Path to a render entry script. Use 'auto' to select renders/render_moose.py, "
+            "renders/render_singlelane.py, renders/render_fixed_circle_iwd.py, or fall back to renders/render5.py."
         ),
     )
     parser.add_argument(
@@ -983,7 +983,7 @@ def main() -> int:
         "--extra-render-args",
         nargs="*",
         default=[],
-        help="Extra args appended to each render5.py command",
+        help="Extra args appended to each render script command",
     )
     args, passthrough_args = parser.parse_known_args()
     extra_runner_args = list(args.extra_run5_args)
