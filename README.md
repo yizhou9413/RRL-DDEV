@@ -54,22 +54,6 @@ python run5.py test moose \
 | Emergency Lane Change | Single lane-change under extreme conditions | [`singlelane.py`](envs/singlelane.py) |
 | Constant Radius Drifting | Sustained drifting with velocity regulation | [`fixed_circle_iwd.py`](envs/fixed_circle_iwd.py) |
 
-## Results
-
-Success rates across three scenarios (3 seeds × 10,000 trajectories):
-
-| Algorithm | Moose Disturb. | Moose Param. | Lane Change Disturb. | Lane Change Param. | Drifting Disturb. | Drifting Param. |
-|-----------|:-:|:-:|:-:|:-:|:-:|:-:|
-| **RPI** | **99.3%** | **96.3%** | **97.1%** | **100.0%** | **84.3%** | **94.1%** |
-| PPO | 96.8% | 77.6% | 86.1% | 61.7% | 31.4% | 57.1% |
-| DR-PPO | 99.2% | 92.3% | 92.2% | 94.0% | 43.0% | 65.4% |
-| RARL | 95.9% | 99.0% | 76.2% | 100.0% | 17.8% | 23.1% |
-| K-RARL | 98.4% | 98.9% | 92.6% | 98.5% | 14.2% | 31.9% |
-| SAC | 41.1% | 33.0% | 80.5% | 63.0% | 32.7% | 51.2% |
-| TD3 | 0.7% | 0.3% | 3.3% | 0.3% | 11.2% | 15.1% |
-
-RPI achieves the highest success rate in **5 of 6** conditions (84.3%–100.0%).
-
 ## Code Structure
 
 ```
