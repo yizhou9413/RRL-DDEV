@@ -15,60 +15,20 @@ A PyTorch framework for training robust autonomous driving policies on distribut
 - **Robust Policy Iteration** — first-order worst-case value bound embedded into TD error and GAE
 - **7 algorithms** under one framework — PPO, SAC, TD3, DR-PPO, RARL, K-RARL, and RPI
 
-## Quick Start
-
-### Install
-
-```bash
-conda env create -f environment.yml
-git submodule init && git submodule update
-```
-
-### Train
-
-```bash
-# RPI training on moose test
-python run5.py train moose \
-    --car-preset tesla_model_3 \
-    --device cuda:0 \
-    --num-parallel 30000 \
-    --seed 1 \
-    --disturbed
-```
-
-### Evaluate
-
-```bash
-python run5.py test moose \
-    --car-preset tesla_model_3 \
-    --device cuda:0 \
-    --num-parallel 10000 \
-    --checkpoint runs/<path_to_model>
-```
-
 ## Environments
 
-| Scenario | Description | Code |
-|----------|-------------|------|
-| Moose Test | Double lane-change obstacle avoidance | [`moose.py`](envs/moose.py) |
-| Emergency Lane Change | Single lane-change under extreme conditions | [`singlelane.py`](envs/singlelane.py) |
-| Constant Radius Drifting | Sustained drifting with velocity regulation | [`fixed_circle_iwd.py`](envs/fixed_circle_iwd.py) |
+| Scenario | Description |
+|----------|-------------|
+| Moose Test | Double lane-change obstacle avoidance |
+| Emergency Lane Change | Single lane-change under extreme conditions |
+| Constant Radius Drifting | Sustained drifting with velocity regulation |
 
-## Code Structure
+## Repository Structure
 
 ```
-├── envs/                        # Task environments
-├── renders/                     # Visualization & rendering scripts
-├── plots/                       # Plotting scripts
-├── experiments/                 # Training scripts & plots
-├── rl_games/                    # RL algorithms (submodule)
-├── utils/                       # Utilities
-├── xcar-simulation/             # GPU simulator & vehicle dynamics
-├── run5.py                      # Main entry point (PPO / RPI / DR-PPO)
-├── run_rarl.py                  # RARL training
-├── run_sac.py                   # SAC training
-├── run_TD3.py                   # TD3 training
-└── runner_config.yaml           # Default config
+├── experiments/                 # Experiment scripts per scenario
+├── plots/                       # Plotting, rendering scripts and sample data
+└── README.md
 ```
 
 ## Citation
